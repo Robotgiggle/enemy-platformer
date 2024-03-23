@@ -10,7 +10,7 @@ public:
 	~CrawlerEntity();
 
 	// ————— METHOD OVERRIDES ————— //
-	void update(float delta_time, Entity* collidable_entities, int collidable_entity_count, Entity* player);
+	void update(float delta_time, Entity* collidable_entities, int collidable_entity_count);
 	float const get_width() const { return (m_clockwise)? Entity::get_width() : Entity::get_height(); };
 	float const get_height() const { return (m_clockwise) ? Entity::get_height() : Entity::get_width(); };
 

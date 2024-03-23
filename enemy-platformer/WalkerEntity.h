@@ -8,7 +8,7 @@ public:
 	~WalkerEntity();
 
 	// ————— METHOD OVERRIDES ————— //
-	void update(float delta_time, Entity* collidable_entities, int collidable_entity_count, Entity* player);
+	void update(float delta_time, Entity* collidable_entities, int collidable_entity_count);
 
 	// ————— GETTERS ————— //
 	AIState const get_ai_state() const { return m_ai_state; };

@@ -28,7 +28,7 @@ CrawlerEntity::~CrawlerEntity() {
 
 }
 
-void CrawlerEntity::update(float delta_time, Entity* collidable_entities, int collidable_entity_count, Entity* player) {
+void CrawlerEntity::update(float delta_time, Entity* collidable_entities, int collidable_entity_count) {
 	m_current_ec_offset = m_edge_check_offsets[m_ai_state];
 	
 	// basic motion

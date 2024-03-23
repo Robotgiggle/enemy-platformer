@@ -23,7 +23,7 @@ WalkerEntity::~WalkerEntity() {
 
 }
 
-void WalkerEntity::update(float delta_time, Entity* collidable_entities, int collidable_entity_count, Entity* player) {
+void WalkerEntity::update(float delta_time, Entity* collidable_entities, int collidable_entity_count) {
 	// basic motion
 	switch (m_ai_state) {
 	case WALK_LEFT:

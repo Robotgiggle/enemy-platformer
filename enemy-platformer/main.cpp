@@ -35,7 +35,8 @@ struct GameState
 {
     Entity* background;
     Entity* player;
-    CrawlerEntity* npc;
+    WalkerEntity* walker;
+    CrawlerEntity* crawler;
     Entity* platforms;
 };
 
@@ -73,13 +74,24 @@ const float FIXED_TIMESTEP = 0.0166666f;
 const float ACC_OF_GRAVITY = -4.91f;
 
 // platforms
-const int PLATFORM_COUNT = 5;
+const int PLATFORM_COUNT = 13;
 const glm::vec3 PLATFORM_COORDS[] = {
-    glm::vec3(-2.0f,-2.0f,0.0f),
-    glm::vec3(-1.0f,-2.0f,0.0f),
-    glm::vec3(0.0f,-2.0f,0.0f),
-    glm::vec3(1.0f,-2.0f,0.0f),
-    glm::vec3(2.0f,-2.0f,0.0f),
+    // bottom floor
+    glm::vec3(-2.5f,-3.0f,0.0f),
+    glm::vec3(-1.5f,-3.0f,0.0f),
+    glm::vec3(-0.5f,-3.0f,0.0f),
+    glm::vec3(0.5f,-3.0f,0.0f),
+    glm::vec3(1.5f,-3.0f,0.0f),
+    glm::vec3(2.5f,-3.0f,0.0f),
+    // side platforms
+    glm::vec3(-4.5f,-1.25f,0.0f),
+    glm::vec3(4.5f,-1.25f,0.0f),
+    // top floor
+    glm::vec3(-2.0f,0.5f,0.0f),
+    glm::vec3(-1.0f,0.5f,0.0f),
+    glm::vec3(0.0f,0.5f,0.0f),
+    glm::vec3(1.0f,0.5f,0.0f),
+    glm::vec3(2.0f,0.5f,0.0f),
 };
 
 // texture generation stuff
@@ -174,12 +186,11 @@ void initialise()
     g_gameState.player->set_position(glm::vec3(-2.0f,-1.0f,0.0f));
     g_gameState.player->set_movement(glm::vec3(0.0f));
     g_gameState.player->set_acceleration(glm::vec3(0.0f, ACC_OF_GRAVITY, 0.0f));
-    g_gameState.player->set_speed(1.0f);
-    g_gameState.player->set_rot_speed(1.0f);
-    g_gameState.player->set_width(0.765f);
-    g_gameState.player->set_height(0.9f);
+    g_gameState.player->set_speed(1.75f);
+    g_gameState.player->set_width(0.65f);
+    g_gameState.player->set_height(0.8f);
     g_gameState.player->m_texture_id = load_texture(SPRITESHEET_FILEPATH);
-    g_gameState.player->m_jumping_power = 3.0f;
+    g_gameState.player->m_jumping_power = 4.5f;
 
     // setup walking animation
     g_gameState.player->m_walking[g_gameState.player->DOWN]  = new int[4] { 0, 4, 8, 12 };
@@ -194,31 +205,50 @@ void initialise()
     g_gameState.player->m_animation_cols = 4;
     g_gameState.player->m_animation_rows = 4;
 
-    // ————— NPC ————— //
-    g_gameState.npc = new CrawlerEntity(0,false);
-    g_gameState.npc->set_motion_type(TOP_DOWN);
-    g_gameState.npc->set_collision(false);
-    g_gameState.npc->set_position(glm::vec3(2.0f, -1.05f, 0.0f));
-    g_gameState.npc->set_movement(glm::vec3(0.0f));
-    g_gameState.npc->set_acceleration(glm::vec3(0.0f, ACC_OF_GRAVITY, 0.0f));
-    g_gameState.npc->set_speed(1.0f);
-    g_gameState.npc->set_rot_speed(1.0f);
-    g_gameState.npc->set_width(0.765f);
-    g_gameState.npc->set_height(0.9f);
-    g_gameState.npc->m_texture_id = load_texture(NPC_FILEPATH);
+    // ————— WALKER ————— //
+    g_gameState.walker = new WalkerEntity(false);
+    g_gameState.walker->set_motion_type(SIDE_ON);
+    g_gameState.walker->set_position(glm::vec3(2.5f, -2.05f, 0.0f));
+    g_gameState.walker->set_speed(2.0f);
+    g_gameState.walker->set_width(0.765f);
+    g_gameState.walker->set_height(0.9f);
+    g_gameState.walker->m_texture_id = load_texture(NPC_FILEPATH);
 
     // setup walking animation
-    g_gameState.npc->m_walking[g_gameState.npc->DOWN] = new int[4] { 0, 4, 8, 12 };
-    g_gameState.npc->m_walking[g_gameState.npc->LEFT] = new int[4] { 1, 5, 9, 13 };
-    g_gameState.npc->m_walking[g_gameState.npc->UP] = new int[4] { 2, 6, 10, 14 };
-    g_gameState.npc->m_walking[g_gameState.npc->RIGHT] = new int[4] { 3, 7, 11, 15 };
+    g_gameState.walker->m_walking[g_gameState.walker->DOWN] = new int[4] { 0, 4, 8, 12 };
+    g_gameState.walker->m_walking[g_gameState.walker->LEFT] = new int[4] { 1, 5, 9, 13 };
+    g_gameState.walker->m_walking[g_gameState.walker->UP] = new int[4] { 2, 6, 10, 14 };
+    g_gameState.walker->m_walking[g_gameState.walker->RIGHT] = new int[4] { 3, 7, 11, 15 };
 
-    g_gameState.npc->m_animation_indices = g_gameState.npc->m_walking[g_gameState.npc->LEFT];
-    g_gameState.npc->m_animation_frames = 4;
-    g_gameState.npc->m_animation_index = 0;
-    g_gameState.npc->m_animation_time = 0.0f;
-    g_gameState.npc->m_animation_cols = 4;
-    g_gameState.npc->m_animation_rows = 4;
+    g_gameState.walker->m_animation_indices = g_gameState.walker->m_walking[g_gameState.walker->LEFT];
+    g_gameState.walker->m_animation_frames = 4;
+    g_gameState.walker->m_animation_index = 0;
+    g_gameState.walker->m_animation_time = 0.0f;
+    g_gameState.walker->m_animation_cols = 4;
+    g_gameState.walker->m_animation_rows = 4;
+
+    // ————— CRAWLER ————— //
+    g_gameState.crawler = new CrawlerEntity(0,true);
+    g_gameState.crawler->set_motion_type(TOP_DOWN);
+    g_gameState.crawler->set_collision(false);
+    g_gameState.crawler->set_position(glm::vec3(-2.0f, 1.45f, 0.0f));
+    g_gameState.crawler->set_speed(2.5f);
+    g_gameState.crawler->set_width(0.765f);
+    g_gameState.crawler->set_height(0.9f);
+    g_gameState.crawler->m_texture_id = load_texture(NPC_FILEPATH);
+
+    // setup walking animation
+    g_gameState.crawler->m_walking[g_gameState.crawler->DOWN] = new int[4] { 0, 4, 8, 12 };
+    g_gameState.crawler->m_walking[g_gameState.crawler->LEFT] = new int[4] { 1, 5, 9, 13 };
+    g_gameState.crawler->m_walking[g_gameState.crawler->UP] = new int[4] { 2, 6, 10, 14 };
+    g_gameState.crawler->m_walking[g_gameState.crawler->RIGHT] = new int[4] { 3, 7, 11, 15 };
+
+    g_gameState.crawler->m_animation_indices = g_gameState.crawler->m_walking[g_gameState.crawler->RIGHT];
+    g_gameState.crawler->m_animation_frames = 4;
+    g_gameState.crawler->m_animation_index = 0;
+    g_gameState.crawler->m_animation_time = 0.0f;
+    g_gameState.crawler->m_animation_cols = 4;
+    g_gameState.crawler->m_animation_rows = 4;
 
     // ————— PLATFORMS ————— //
     g_gameState.platforms = new Entity[PLATFORM_COUNT];
@@ -309,7 +339,8 @@ void update()
     while (g_timeAccumulator >= FIXED_TIMESTEP)
     {
         g_gameState.player->update(FIXED_TIMESTEP, g_gameState.platforms, PLATFORM_COUNT);
-        g_gameState.npc->update(FIXED_TIMESTEP, g_gameState.platforms, PLATFORM_COUNT, g_gameState.player);
+        g_gameState.walker->update(FIXED_TIMESTEP, g_gameState.platforms, PLATFORM_COUNT);
+        g_gameState.crawler->update(FIXED_TIMESTEP, g_gameState.platforms, PLATFORM_COUNT);
         g_timeAccumulator -= FIXED_TIMESTEP;
     }
 }
@@ -325,8 +356,11 @@ void render()
     // ————— PLAYER ————— //
     g_gameState.player->render(&g_shaderProgram);
 
-    // ————— NPC ————— //
-    g_gameState.npc->render(&g_shaderProgram);
+    // ————— WALKER ————— //
+    g_gameState.walker->render(&g_shaderProgram);
+
+    // ————— CRAWLER ————— //
+    g_gameState.crawler->render(&g_shaderProgram);
 
     // ————— PLATFORM ————— //
     for (int i = 0; i < PLATFORM_COUNT; i++) g_gameState.platforms[i].render(&g_shaderProgram);
@@ -339,7 +373,8 @@ void shutdown() {
     SDL_Quit();
     delete[] g_gameState.background;
     delete[] g_gameState.player;
-    delete[] g_gameState.npc;
+    delete[] g_gameState.walker;
+    delete[] g_gameState.crawler;
     delete[] g_gameState.platforms;
 }
 
