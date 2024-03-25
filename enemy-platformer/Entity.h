@@ -1,3 +1,5 @@
+#define LOG(argument) std::cout << argument << '\n'
+
 enum MotionType { NONE, TOP_DOWN, SIDE_ON, PHYSICS };
 
 class Entity {

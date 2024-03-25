@@ -134,6 +134,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CrawlerEntity.cpp" />
+    <ClCompile Include="FlyerEntity.cpp" />
     <ClCompile Include="WalkerEntity.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="main.cpp" />
@@ -141,6 +142,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CrawlerEntity.h" />
+    <ClInclude Include="FlyerEntity.h" />
     <ClInclude Include="WalkerEntity.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="ShaderProgram.h" />

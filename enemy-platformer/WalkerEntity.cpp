@@ -17,6 +17,7 @@
 WalkerEntity::WalkerEntity(bool dir) {
 	m_ai_state = dir? WALK_RIGHT : WALK_LEFT;
 	m_edge_check_offset = glm::vec3((dir? 0.2f : -0.2f) * get_width(), -0.6f * get_height(), 0.0f);
+	set_motion_type(SIDE_ON);
 }
 
 WalkerEntity::~WalkerEntity() {

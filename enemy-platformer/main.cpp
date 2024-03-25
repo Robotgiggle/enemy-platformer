@@ -29,6 +29,7 @@
 #include "Entity.h"
 #include "WalkerEntity.h"
 #include "CrawlerEntity.h"
+#include "FlyerEntity.h"
 
 // ————— STRUCTS AND ENUMS —————//
 struct GameState
@@ -37,6 +38,7 @@ struct GameState
     Entity* player;
     WalkerEntity* walker;
     CrawlerEntity* crawler;
+    FlyerEntity* flyers;
     Entity* platforms;
 };
 
@@ -207,7 +209,6 @@ void initialise()
 
     // ————— WALKER ————— //
     g_gameState.walker = new WalkerEntity(false);
-    g_gameState.walker->set_motion_type(SIDE_ON);
     g_gameState.walker->set_position(glm::vec3(2.5f, -2.05f, 0.0f));
     g_gameState.walker->set_speed(2.0f);
     g_gameState.walker->set_width(0.765f);
@@ -229,10 +230,10 @@ void initialise()
 
     // ————— CRAWLER ————— //
     g_gameState.crawler = new CrawlerEntity(0,true);
-    g_gameState.crawler->set_motion_type(TOP_DOWN);
     g_gameState.crawler->set_collision(false);
+    g_gameState.crawler->set_motion_type(TOP_DOWN);
     g_gameState.crawler->set_position(glm::vec3(-2.0f, 1.45f, 0.0f));
-    g_gameState.crawler->set_speed(2.5f);
+    g_gameState.crawler->set_speed(3.0f);
     g_gameState.crawler->set_width(0.765f);
     g_gameState.crawler->set_height(0.9f);
     g_gameState.crawler->m_texture_id = load_texture(NPC_FILEPATH);
@@ -249,6 +250,16 @@ void initialise()
     g_gameState.crawler->m_animation_time = 0.0f;
     g_gameState.crawler->m_animation_cols = 4;
     g_gameState.crawler->m_animation_rows = 4;
+
+    // ————— FLYERS ————— //
+    g_gameState.flyers = new FlyerEntity[2]{ {0.4, 0.6, 3.5}, {0.4, 0.6, 3.5} };
+    for (int i = 0; i < 2; i++) {
+        g_gameState.flyers[i].set_position(glm::vec3(8*i - 4.0f, 2.5f, 0.0f));
+        g_gameState.flyers[i].set_speed(4.5f);
+        g_gameState.flyers[i].set_width(0.65f);
+        g_gameState.flyers[i].set_height(0.65f);
+        g_gameState.flyers[i].m_texture_id = load_texture(NPC_FILEPATH);
+    }
 
     // ————— PLATFORMS ————— //
     g_gameState.platforms = new Entity[PLATFORM_COUNT];
@@ -341,6 +352,8 @@ void update()
         g_gameState.player->update(FIXED_TIMESTEP, g_gameState.platforms, PLATFORM_COUNT);
         g_gameState.walker->update(FIXED_TIMESTEP, g_gameState.platforms, PLATFORM_COUNT);
         g_gameState.crawler->update(FIXED_TIMESTEP, g_gameState.platforms, PLATFORM_COUNT);
+        g_gameState.flyers[0].update(FIXED_TIMESTEP, g_gameState.platforms, PLATFORM_COUNT, g_gameState.player);
+        g_gameState.flyers[1].update(FIXED_TIMESTEP, g_gameState.platforms, PLATFORM_COUNT, g_gameState.player);
         g_timeAccumulator -= FIXED_TIMESTEP;
     }
 }
@@ -356,11 +369,11 @@ void render()
     // ————— PLAYER ————— //
     g_gameState.player->render(&g_shaderProgram);
 
-    // ————— WALKER ————— //
+    // ————— ENEMIES ————— //
     g_gameState.walker->render(&g_shaderProgram);
-
-    // ————— CRAWLER ————— //
     g_gameState.crawler->render(&g_shaderProgram);
+    g_gameState.flyers[0].render(&g_shaderProgram);
+    g_gameState.flyers[1].render(&g_shaderProgram);
 
     // ————— PLATFORM ————— //
     for (int i = 0; i < PLATFORM_COUNT; i++) g_gameState.platforms[i].render(&g_shaderProgram);
@@ -375,6 +388,7 @@ void shutdown() {
     delete[] g_gameState.player;
     delete[] g_gameState.walker;
     delete[] g_gameState.crawler;
+    delete[] g_gameState.flyers;
     delete[] g_gameState.platforms;
 }
 

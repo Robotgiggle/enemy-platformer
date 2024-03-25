@@ -22,6 +22,7 @@ CrawlerEntity::CrawlerEntity(int state, bool dir) {
 	m_edge_check_offsets[GROUND_UP] = glm::vec3((m_clockwise) ? -0.01f : 0.01f, 0.5f * get_height(), 0.0f);
 	m_edge_check_offsets[GROUND_LEFT] = glm::vec3(-0.5f * get_height(), (m_clockwise) ? -0.01f : 0.01f, 0.0f);
 	m_current_ec_offset = m_edge_check_offsets[m_ai_state];
+	//set_motion_type(TOP_DOWN);
 }
 
 CrawlerEntity::~CrawlerEntity() {
@@ -83,10 +84,10 @@ void CrawlerEntity::update(float delta_time, Entity* collidable_entities, int co
 		Entity* other = &collidable_entities[i];
 		if (!other->get_active()) continue;
 
-		glm::vec3 edge_check_pos = m_current_ec_offset + get_position();
+		glm::vec3 edgeCheckPos = m_current_ec_offset + get_position();
 		glm::vec3 otherPos = other->get_position();
-		float x_distance = fabs(edge_check_pos.x - otherPos.x) - (other->get_width() / 2.0f);
-		float y_distance = fabs(edge_check_pos.y - otherPos.y) - (other->get_height() / 2.0f);
+		float x_distance = fabs(edgeCheckPos.x - otherPos.x) - (other->get_width() / 2.0f);
+		float y_distance = fabs(edgeCheckPos.y - otherPos.y) - (other->get_height() / 2.0f);
 
 		if (x_distance < 0.0f && y_distance < 0.0f) edge = false;
 	}
@@ -105,8 +106,8 @@ void CrawlerEntity::update(float delta_time, Entity* collidable_entities, int co
 				set_angle(90);
 			}
 			set_position(glm::vec3(
-				pos.x + get_width() / ((m_clockwise)? 2 : -2),
-				pos.y - get_height() / 2 - 0.2f,
+				pos.x + get_height() / ((m_clockwise)? 2 : -2),
+				pos.y - get_width() / 2 - 0.2f,
 				0.0f
 			));
 			break;
@@ -120,8 +121,8 @@ void CrawlerEntity::update(float delta_time, Entity* collidable_entities, int co
 				set_angle(180);
 			}
 			set_position(glm::vec3(
-				pos.x + get_height() / 2 + 0.2f,
-				pos.y + get_width() / ((m_clockwise) ? 2 : -2),
+				pos.x + get_width() / 2 + 0.2f,
+				pos.y + get_height() / ((m_clockwise) ? 2 : -2),
 				0.0f
 			));
 			break;
@@ -135,8 +136,8 @@ void CrawlerEntity::update(float delta_time, Entity* collidable_entities, int co
 				set_angle(-90);
 			}
 			set_position(glm::vec3(
-				pos.x + get_width() / ((m_clockwise) ? -2 : 2),
-				pos.y + get_height() / 2 + 0.2f,
+				pos.x + get_height() / ((m_clockwise) ? -2 : 2),
+				pos.y + get_width() / 2 + 0.2f,
 				0.0f
 			));
 			break;
@@ -150,8 +151,8 @@ void CrawlerEntity::update(float delta_time, Entity* collidable_entities, int co
 				set_angle(0);
 			}
 			set_position(glm::vec3(
-				pos.x - get_height() / 2 - 0.2f,
-				pos.y + get_width() / ((m_clockwise) ? -2 : 2),
+				pos.x - get_width() / 2 - 0.2f,
+				pos.y + get_height() / ((m_clockwise) ? -2 : 2),
 				0.0f
 			));
 			break;
@@ -162,3 +163,13 @@ void CrawlerEntity::update(float delta_time, Entity* collidable_entities, int co
 
 	Entity::update(delta_time, collidable_entities, collidable_entity_count);
 }
+
+//float const CrawlerEntity::get_width() const {
+//	if (m_ai_state == GROUND_LEFT or m_ai_state == GROUND_RIGHT) return Entity::get_height();
+//	return Entity::get_width();
+//}
+//
+//float const CrawlerEntity::get_height() const {
+//	if (m_ai_state == GROUND_LEFT or m_ai_state == GROUND_RIGHT) return Entity::get_width();
+//	return Entity::get_height();
+//}

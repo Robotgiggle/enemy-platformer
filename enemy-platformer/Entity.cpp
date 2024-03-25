@@ -22,6 +22,7 @@ Entity::Entity()
 
     // ––––– TRANSFORMATION ––––– //
     m_angle = 0;
+    m_rotation = 0;
     m_movement = glm::vec3(0.0f);
     m_scale = glm::vec3(1.0f);
     m_model_matrix = glm::mat4(1.0f);
