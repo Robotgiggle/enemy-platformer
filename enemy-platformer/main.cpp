@@ -66,7 +66,7 @@ const char V_SHADER_PATH[] = "shaders/vertex_textured.glsl",
 
 // sprite filepaths
 const char BACKGROUND_FILEPATH[] = "assets/default_background.png",
-           SPRITESHEET_FILEPATH[] = "assets/default_player.png",
+           SPRITESHEET_FILEPATH[] = "assets/player.png",
            NPC_FILEPATH[] = "assets/default_npc.png",
            PLATFORM_FILEPATH[] = "assets/default_platform.png";
 
@@ -195,17 +195,17 @@ void initialise()
     g_gameState.player->m_jumping_power = 4.5f;
 
     // setup walking animation
-    g_gameState.player->m_walking[g_gameState.player->DOWN]  = new int[4] { 0, 4, 8, 12 };
-    g_gameState.player->m_walking[g_gameState.player->LEFT]  = new int[4] { 1, 5, 9, 13 };
-    g_gameState.player->m_walking[g_gameState.player->UP]    = new int[4] { 2, 6, 10, 14 };
-    g_gameState.player->m_walking[g_gameState.player->RIGHT] = new int[4] { 3, 7, 11, 15 };
+    g_gameState.player->m_animation_cols = 2;
+    g_gameState.player->m_animation_rows = 2;
 
+    g_gameState.player->m_walking[g_gameState.player->LEFT]  = new int[2] { 0, 2 };
+    g_gameState.player->m_walking[g_gameState.player->RIGHT] = new int[2] { 1, 3 };
     g_gameState.player->m_animation_indices = g_gameState.player->m_walking[g_gameState.player->RIGHT];
-    g_gameState.player->m_animation_frames = 4;
+    
+    g_gameState.player->m_animation_frames = 2;
     g_gameState.player->m_animation_index = 0;
     g_gameState.player->m_animation_time = 0.0f;
-    g_gameState.player->m_animation_cols = 4;
-    g_gameState.player->m_animation_rows = 4;
+    g_gameState.player->m_frames_per_second = 6;
 
     // ————— WALKER ————— //
     g_gameState.walker = new WalkerEntity(false);

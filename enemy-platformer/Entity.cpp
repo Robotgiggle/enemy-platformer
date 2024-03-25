@@ -87,21 +87,17 @@ void Entity::update(float delta_time, Entity* collidable_entities, int collidabl
     // ––––– ANIMATION ––––– //
     if (m_animation_indices != NULL)
     {
-        if (glm::length(m_movement) != 0)
-        {
+        if (glm::length(m_movement) != 0) {
             m_animation_time += delta_time;
-            float frames_per_second = (float)1 / SECONDS_PER_FRAME;
+            float seconds_per_frame = (float)1 / m_frames_per_second;
 
-            if (m_animation_time >= frames_per_second)
+            if (m_animation_time >= seconds_per_frame)
             {
                 m_animation_time = 0.0f;
-                m_animation_index++;
-
-                if (m_animation_index >= m_animation_frames)
-                {
-                    m_animation_index = 0;
-                }
+                m_animation_index = (m_animation_index + 1) % m_animation_frames;
             }
+        } else {
+            m_animation_index = 0;
         }
     }
 

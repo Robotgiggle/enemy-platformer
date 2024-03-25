@@ -24,7 +24,6 @@ private:
 
 public:
     // ————— STATIC VARIABLES ————— //
-    static const int SECONDS_PER_FRAME = 4;
     static const int LEFT = 0,
                      RIGHT = 1,
                      UP = 2,
@@ -39,6 +38,8 @@ public:
         m_animation_rows = 0;
 
     int* m_animation_indices = NULL;
+
+    int m_frames_per_second = 4;
     float m_animation_time = 0.0f;
 
     // ––––– PHYSICS (JUMPING) ––––– //
