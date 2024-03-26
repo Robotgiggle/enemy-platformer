@@ -1,8 +1,10 @@
 #define LOG(argument) std::cout << argument << '\n'
 
-enum MotionType { NONE, TOP_DOWN, SIDE_ON, PHYSICS };
-
 class Entity {
+public:
+    enum MotionType { NONE, TOP_DOWN, SIDE_ON, PHYSICS };
+    enum { LEFT, RIGHT, UP, DOWN };
+
 private:
     bool m_is_active = true;
     bool m_has_collision = true;
@@ -23,25 +25,16 @@ private:
     glm::mat4 m_model_matrix;
 
 public:
-    // ————— STATIC VARIABLES ————— //
-    static const int LEFT = 0,
-                     RIGHT = 1,
-                     UP = 2,
-                     DOWN = 3;
-
     // ————— ANIMATION ————— //
     int** m_walking = new int* [4];
+    int* m_animation_indices = NULL;
 
     int m_animation_frames = 0,
         m_animation_index = 0,
         m_animation_cols = 0,
-        m_animation_rows = 0;
-
-    int* m_animation_indices = NULL;
-
-    int m_frames_per_second = 4;
+        m_animation_rows = 0,
+        m_frames_per_second = 4;
     float m_animation_time = 0.0f;
-
     bool m_always_animate = false;
 
     // ––––– PHYSICS (JUMPING) ––––– //
@@ -60,6 +53,8 @@ public:
     Entity();
     ~Entity();
 
+    void setup_anim(int cols = 0, int rows = 0, int frames = 0, int fps = 4,
+        bool always = false, int index = 0, float time = 0.0f);
     void draw_sprite_from_texture_atlas(ShaderProgram* program, GLuint texture_id, int index);
     bool const check_collision(Entity* other) const;
     void const check_collision_y(Entity* collidable_entities, int collidable_entity_count);

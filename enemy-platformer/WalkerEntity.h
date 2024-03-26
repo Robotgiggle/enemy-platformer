@@ -1,6 +1,6 @@
 class WalkerEntity : public Entity {
-	enum AIState { WALK_LEFT, WALK_RIGHT };
 private:
+	enum AIState { WALK_LEFT, WALK_RIGHT };
 	AIState m_ai_state;
 	glm::vec3 m_edge_check_offset;
 public:

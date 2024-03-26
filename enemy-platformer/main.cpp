@@ -70,7 +70,6 @@ const char BACKGROUND_FILEPATH[] = "assets/default_background.png",
            WALKER_FILEPATH[] = "assets/walker.png",
            CRAWLER_FILEPATH[] = "assets/crawler.png",
            FLYER_FILEPATH[] = "assets/flyer.png",
-           NPC_FILEPATH[] = "assets/default_npc.png",
            PLATFORM_FILEPATH[] = "assets/default_platform.png";
 
 // world constants
@@ -187,9 +186,8 @@ void initialise()
     // ————— PLAYER ————— //
     // setup basic attributes
     g_gameState.player = new Entity();
-    g_gameState.player->set_motion_type(SIDE_ON);
-    g_gameState.player->set_position(glm::vec3(-2.0f,-1.0f,0.0f));
-    g_gameState.player->set_movement(glm::vec3(0.0f));
+    g_gameState.player->set_motion_type(Entity::SIDE_ON);
+    g_gameState.player->set_position(glm::vec3(-2.0f,-2.0f,0.0f));
     g_gameState.player->set_acceleration(glm::vec3(0.0f, ACC_OF_GRAVITY, 0.0f));
     g_gameState.player->set_speed(1.75f);
     g_gameState.player->set_width(0.65f);
@@ -198,17 +196,10 @@ void initialise()
     g_gameState.player->m_jumping_power = 4.5f;
 
     // setup walking animation
-    g_gameState.player->m_animation_cols = 2;
-    g_gameState.player->m_animation_rows = 2;
-
-    g_gameState.player->m_walking[g_gameState.player->LEFT]  = new int[2] { 0, 2 };
-    g_gameState.player->m_walking[g_gameState.player->RIGHT] = new int[2] { 1, 3 };
-    g_gameState.player->m_animation_indices = g_gameState.player->m_walking[g_gameState.player->RIGHT];
-    
-    g_gameState.player->m_animation_frames = 2;
-    g_gameState.player->m_animation_index = 0;
-    g_gameState.player->m_animation_time = 0.0f;
-    g_gameState.player->m_frames_per_second = 6;
+    g_gameState.player->m_walking[Entity::LEFT]  = new int[2] { 0, 2 };
+    g_gameState.player->m_walking[Entity::RIGHT] = new int[2] { 1, 3 };
+    g_gameState.player->m_animation_indices = g_gameState.player->m_walking[Entity::RIGHT];
+    g_gameState.player->setup_anim(2, 2, 2, 6);
 
     // ————— WALKER ————— //
     g_gameState.walker = new WalkerEntity(false);
@@ -219,23 +210,15 @@ void initialise()
     g_gameState.walker->m_texture_id = load_texture(WALKER_FILEPATH);
 
     // setup walking animation
-    g_gameState.walker->m_animation_cols = 2;
-    g_gameState.walker->m_animation_rows = 2;
-
-    g_gameState.walker->m_walking[g_gameState.walker->LEFT] = new int[4] { 0, 2 };
-    g_gameState.walker->m_walking[g_gameState.walker->RIGHT] = new int[4] { 1, 3 };
-    g_gameState.walker->m_animation_indices = g_gameState.walker->m_walking[g_gameState.walker->LEFT];
-
-    g_gameState.walker->m_animation_frames = 2;
-    g_gameState.walker->m_animation_index = 0;
-    g_gameState.walker->m_animation_time = 0.0f;
-    g_gameState.walker->m_frames_per_second = 5;
+    g_gameState.walker->m_walking[Entity::LEFT] = new int[4] { 0, 2 };
+    g_gameState.walker->m_walking[Entity::RIGHT] = new int[4] { 1, 3 };
+    g_gameState.walker->m_animation_indices = g_gameState.walker->m_walking[Entity::LEFT];
+    g_gameState.walker->setup_anim(2, 2, 2, 5);
 
     // ————— CRAWLER ————— //
     g_gameState.crawlers = new CrawlerEntity[2]{ {0,true}, {2,true} };
     for (int i = 0; i < 2; i++) {
         g_gameState.crawlers[i].set_collision(false);
-        g_gameState.crawlers[i].set_motion_type(TOP_DOWN);
         g_gameState.crawlers[i].set_position(glm::vec3(-2.0f + 4*i, 1.4f - 1.8*i, 0.0f));
         g_gameState.crawlers[i].set_speed(3.0f);
         g_gameState.crawlers[i].set_width(0.7f);
@@ -243,41 +226,27 @@ void initialise()
         g_gameState.crawlers[i].m_texture_id = load_texture(CRAWLER_FILEPATH);
 
         // setup walking animation
-        g_gameState.crawlers[i].m_animation_cols = 2;
-        g_gameState.crawlers[i].m_animation_rows = 2;
-
-        g_gameState.crawlers[i].m_walking[g_gameState.crawlers[i].LEFT] = new int[4] { 0, 2 };
-        g_gameState.crawlers[i].m_walking[g_gameState.crawlers[i].RIGHT] = new int[4] { 1, 3 };
+        g_gameState.crawlers[i].m_walking[Entity::LEFT] = new int[4] { 0, 2 };
+        g_gameState.crawlers[i].m_walking[Entity::RIGHT] = new int[4] { 1, 3 };
         g_gameState.crawlers[i].m_animation_indices = g_gameState.crawlers[i].m_walking[g_gameState.crawlers[i].get_clockwise()];
-
-        g_gameState.crawlers[i].m_animation_frames = 2;
-        g_gameState.crawlers[i].m_animation_index = 0;
-        g_gameState.crawlers[i].m_animation_time = 0.0f;
-        g_gameState.crawlers[i].m_frames_per_second = 6;
+        g_gameState.crawlers[i].setup_anim(2, 2, 2, 6);
     }
 
     // ————— FLYERS ————— //
-    g_gameState.flyers = new FlyerEntity[2]{ {0.4, 0.6, 3.5}, {0.4, 0.6, 3.5} };
+    g_gameState.flyers = new FlyerEntity[2]{ {0.4f, 0.6f, 3.5f}, {0.4f, 0.6f, 3.5f} };
     for (int i = 0; i < 2; i++) {
         g_gameState.flyers[i].set_position(glm::vec3(8*i - 4.0f, 2.5f, 0.0f));
+        // motion type???
         g_gameState.flyers[i].set_speed(4.5f);
         g_gameState.flyers[i].set_width(0.84f);
         g_gameState.flyers[i].set_height(0.63f);
         g_gameState.flyers[i].m_texture_id = load_texture(FLYER_FILEPATH);
 
         // setup flapping animation
-        g_gameState.flyers[i].m_animation_cols = 2;
-        g_gameState.flyers[i].m_animation_rows = 3;
-
-        g_gameState.flyers[i].m_walking[g_gameState.flyers[i].LEFT] = new int[4] { 0, 2, 4 };
-        g_gameState.flyers[i].m_walking[g_gameState.flyers[i].RIGHT] = new int[4] { 1, 3, 5 };
+        g_gameState.flyers[i].m_walking[Entity::LEFT] = new int[4] { 0, 2, 4 };
+        g_gameState.flyers[i].m_walking[Entity::RIGHT] = new int[4] { 1, 3, 5 };
         g_gameState.flyers[i].m_animation_indices = g_gameState.flyers[i].m_walking[!i];
-
-        g_gameState.flyers[i].m_animation_frames = 3;
-        g_gameState.flyers[i].m_animation_index = 0;
-        g_gameState.flyers[i].m_animation_time = 0.0f;
-        g_gameState.flyers[i].m_frames_per_second = 5;
-        g_gameState.flyers[i].m_always_animate = true;
+        g_gameState.flyers[i].setup_anim(2, 3, 3, 4, true);
     }
 
     // ————— PLATFORMS ————— //

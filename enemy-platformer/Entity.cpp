@@ -37,6 +37,18 @@ Entity::~Entity()
     delete[] m_animation_indices;
 }
 
+void Entity::setup_anim(int cols, int rows, int frames, int fps, bool always, int index, float time) {
+    m_animation_cols = cols;
+    m_animation_rows = rows;
+
+    m_animation_frames = frames;
+    m_animation_index = index;
+    m_animation_time = time;
+    m_frames_per_second = fps;
+
+    m_always_animate = always;
+}
+
 void Entity::draw_sprite_from_texture_atlas(ShaderProgram* program, GLuint texture_id, int index)
 {
     // Step 1: Calculate the UV location of the indexed frame
@@ -96,7 +108,8 @@ void Entity::update(float delta_time, Entity* collidable_entities, int collidabl
                 m_animation_time = 0.0f;
                 m_animation_index = (m_animation_index + 1) % m_animation_frames;
             }
-        } else {
+        }
+        else {
             m_animation_index = 0;
         }
     }
@@ -148,7 +161,7 @@ void Entity::update(float delta_time, Entity* collidable_entities, int collidabl
     m_model_matrix = glm::translate(m_model_matrix, m_position);
     m_model_matrix = glm::rotate(m_model_matrix, glm::radians(m_angle), glm::vec3(0.0f, 0.0f, 1.0f));
     m_model_matrix = glm::scale(m_model_matrix, m_scale);
-    
+
 }
 
 void const Entity::check_collision_y(Entity* collidable_entities, int collidable_entity_count)

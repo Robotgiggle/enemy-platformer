@@ -1,6 +1,6 @@
 class FlyerEntity : public Entity {
-	enum AIState { IDLE, DASHING, RESTING };
 private:
+	enum AIState { IDLE, DASHING, RESTING };
 	AIState m_ai_state;
 	float m_dash_time;
 	float m_rest_time;

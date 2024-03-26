@@ -23,7 +23,7 @@ CrawlerEntity::CrawlerEntity(int state, bool dir) {
 	m_edge_check_offsets[GROUND_UP] = glm::vec3((m_clockwise) ? -0.01f : 0.01f, 0.5f * get_height(), 0.0f);
 	m_edge_check_offsets[GROUND_LEFT] = glm::vec3(-0.5f * get_height(), (m_clockwise) ? -0.01f : 0.01f, 0.0f);
 	m_current_ec_offset = m_edge_check_offsets[m_ai_state];
-	//set_motion_type(TOP_DOWN);
+	set_motion_type(TOP_DOWN);
 }
 
 CrawlerEntity::~CrawlerEntity() {
