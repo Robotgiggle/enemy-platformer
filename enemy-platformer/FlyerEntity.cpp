@@ -42,11 +42,13 @@ void FlyerEntity::update(float delta_time, Entity* collidable_entities, int coll
 		}
 		break;
 	case DASHING:
-		if (m_timer <= 0 or glm::length(m_target_point - pos) <= 0.05) {
+		if (m_timer <= 0 or glm::length(m_target_point - pos) <= 0.1) {
 			m_ai_state = RESTING;
 			m_timer = m_rest_time;
 		}
 		set_movement(glm::normalize(m_target_point - pos));
+		if (get_movement().x > 0) m_animation_indices = m_walking[RIGHT];
+		else m_animation_indices = m_walking[LEFT];
 		m_timer -= delta_time;
 		break;
 	case RESTING:

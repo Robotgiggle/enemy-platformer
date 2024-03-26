@@ -37,7 +37,7 @@ struct GameState
     Entity* background;
     Entity* player;
     WalkerEntity* walker;
-    CrawlerEntity* crawler;
+    CrawlerEntity* crawlers;
     FlyerEntity* flyers;
     Entity* platforms;
 };
@@ -66,7 +66,10 @@ const char V_SHADER_PATH[] = "shaders/vertex_textured.glsl",
 
 // sprite filepaths
 const char BACKGROUND_FILEPATH[] = "assets/default_background.png",
-           SPRITESHEET_FILEPATH[] = "assets/player.png",
+           PLAYER_FILEPATH[] = "assets/player.png",
+           WALKER_FILEPATH[] = "assets/walker.png",
+           CRAWLER_FILEPATH[] = "assets/crawler.png",
+           FLYER_FILEPATH[] = "assets/flyer.png",
            NPC_FILEPATH[] = "assets/default_npc.png",
            PLATFORM_FILEPATH[] = "assets/default_platform.png";
 
@@ -147,7 +150,7 @@ GLuint load_texture(const char* filepath)
 void initialise()
 {
     SDL_Init(SDL_INIT_VIDEO);
-    g_displayWindow = SDL_CreateWindow("Game Template",
+    g_displayWindow = SDL_CreateWindow("Platform Fighter",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
         WINDOW_WIDTH, WINDOW_HEIGHT,
         SDL_WINDOW_OPENGL);
@@ -191,7 +194,7 @@ void initialise()
     g_gameState.player->set_speed(1.75f);
     g_gameState.player->set_width(0.65f);
     g_gameState.player->set_height(0.8f);
-    g_gameState.player->m_texture_id = load_texture(SPRITESHEET_FILEPATH);
+    g_gameState.player->m_texture_id = load_texture(PLAYER_FILEPATH);
     g_gameState.player->m_jumping_power = 4.5f;
 
     // setup walking animation
@@ -213,52 +216,68 @@ void initialise()
     g_gameState.walker->set_speed(2.0f);
     g_gameState.walker->set_width(0.765f);
     g_gameState.walker->set_height(0.9f);
-    g_gameState.walker->m_texture_id = load_texture(NPC_FILEPATH);
+    g_gameState.walker->m_texture_id = load_texture(WALKER_FILEPATH);
 
     // setup walking animation
-    g_gameState.walker->m_walking[g_gameState.walker->DOWN] = new int[4] { 0, 4, 8, 12 };
-    g_gameState.walker->m_walking[g_gameState.walker->LEFT] = new int[4] { 1, 5, 9, 13 };
-    g_gameState.walker->m_walking[g_gameState.walker->UP] = new int[4] { 2, 6, 10, 14 };
-    g_gameState.walker->m_walking[g_gameState.walker->RIGHT] = new int[4] { 3, 7, 11, 15 };
+    g_gameState.walker->m_animation_cols = 2;
+    g_gameState.walker->m_animation_rows = 2;
 
+    g_gameState.walker->m_walking[g_gameState.walker->LEFT] = new int[4] { 0, 2 };
+    g_gameState.walker->m_walking[g_gameState.walker->RIGHT] = new int[4] { 1, 3 };
     g_gameState.walker->m_animation_indices = g_gameState.walker->m_walking[g_gameState.walker->LEFT];
-    g_gameState.walker->m_animation_frames = 4;
+
+    g_gameState.walker->m_animation_frames = 2;
     g_gameState.walker->m_animation_index = 0;
     g_gameState.walker->m_animation_time = 0.0f;
-    g_gameState.walker->m_animation_cols = 4;
-    g_gameState.walker->m_animation_rows = 4;
+    g_gameState.walker->m_frames_per_second = 5;
 
     // ————— CRAWLER ————— //
-    g_gameState.crawler = new CrawlerEntity(0,true);
-    g_gameState.crawler->set_collision(false);
-    g_gameState.crawler->set_motion_type(TOP_DOWN);
-    g_gameState.crawler->set_position(glm::vec3(-2.0f, 1.45f, 0.0f));
-    g_gameState.crawler->set_speed(3.0f);
-    g_gameState.crawler->set_width(0.765f);
-    g_gameState.crawler->set_height(0.9f);
-    g_gameState.crawler->m_texture_id = load_texture(NPC_FILEPATH);
+    g_gameState.crawlers = new CrawlerEntity[2]{ {0,true}, {2,true} };
+    for (int i = 0; i < 2; i++) {
+        g_gameState.crawlers[i].set_collision(false);
+        g_gameState.crawlers[i].set_motion_type(TOP_DOWN);
+        g_gameState.crawlers[i].set_position(glm::vec3(-2.0f + 4*i, 1.4f - 1.8*i, 0.0f));
+        g_gameState.crawlers[i].set_speed(3.0f);
+        g_gameState.crawlers[i].set_width(0.7f);
+        g_gameState.crawlers[i].set_height(0.8f);
+        g_gameState.crawlers[i].m_texture_id = load_texture(CRAWLER_FILEPATH);
 
-    // setup walking animation
-    g_gameState.crawler->m_walking[g_gameState.crawler->DOWN] = new int[4] { 0, 4, 8, 12 };
-    g_gameState.crawler->m_walking[g_gameState.crawler->LEFT] = new int[4] { 1, 5, 9, 13 };
-    g_gameState.crawler->m_walking[g_gameState.crawler->UP] = new int[4] { 2, 6, 10, 14 };
-    g_gameState.crawler->m_walking[g_gameState.crawler->RIGHT] = new int[4] { 3, 7, 11, 15 };
+        // setup walking animation
+        g_gameState.crawlers[i].m_animation_cols = 2;
+        g_gameState.crawlers[i].m_animation_rows = 2;
 
-    g_gameState.crawler->m_animation_indices = g_gameState.crawler->m_walking[g_gameState.crawler->RIGHT];
-    g_gameState.crawler->m_animation_frames = 4;
-    g_gameState.crawler->m_animation_index = 0;
-    g_gameState.crawler->m_animation_time = 0.0f;
-    g_gameState.crawler->m_animation_cols = 4;
-    g_gameState.crawler->m_animation_rows = 4;
+        g_gameState.crawlers[i].m_walking[g_gameState.crawlers[i].LEFT] = new int[4] { 0, 2 };
+        g_gameState.crawlers[i].m_walking[g_gameState.crawlers[i].RIGHT] = new int[4] { 1, 3 };
+        g_gameState.crawlers[i].m_animation_indices = g_gameState.crawlers[i].m_walking[g_gameState.crawlers[i].get_clockwise()];
+
+        g_gameState.crawlers[i].m_animation_frames = 2;
+        g_gameState.crawlers[i].m_animation_index = 0;
+        g_gameState.crawlers[i].m_animation_time = 0.0f;
+        g_gameState.crawlers[i].m_frames_per_second = 6;
+    }
 
     // ————— FLYERS ————— //
     g_gameState.flyers = new FlyerEntity[2]{ {0.4, 0.6, 3.5}, {0.4, 0.6, 3.5} };
     for (int i = 0; i < 2; i++) {
         g_gameState.flyers[i].set_position(glm::vec3(8*i - 4.0f, 2.5f, 0.0f));
         g_gameState.flyers[i].set_speed(4.5f);
-        g_gameState.flyers[i].set_width(0.65f);
-        g_gameState.flyers[i].set_height(0.65f);
-        g_gameState.flyers[i].m_texture_id = load_texture(NPC_FILEPATH);
+        g_gameState.flyers[i].set_width(0.84f);
+        g_gameState.flyers[i].set_height(0.63f);
+        g_gameState.flyers[i].m_texture_id = load_texture(FLYER_FILEPATH);
+
+        // setup flapping animation
+        g_gameState.flyers[i].m_animation_cols = 2;
+        g_gameState.flyers[i].m_animation_rows = 3;
+
+        g_gameState.flyers[i].m_walking[g_gameState.flyers[i].LEFT] = new int[4] { 0, 2, 4 };
+        g_gameState.flyers[i].m_walking[g_gameState.flyers[i].RIGHT] = new int[4] { 1, 3, 5 };
+        g_gameState.flyers[i].m_animation_indices = g_gameState.flyers[i].m_walking[!i];
+
+        g_gameState.flyers[i].m_animation_frames = 3;
+        g_gameState.flyers[i].m_animation_index = 0;
+        g_gameState.flyers[i].m_animation_time = 0.0f;
+        g_gameState.flyers[i].m_frames_per_second = 5;
+        g_gameState.flyers[i].m_always_animate = true;
     }
 
     // ————— PLATFORMS ————— //
@@ -351,7 +370,8 @@ void update()
     {
         g_gameState.player->update(FIXED_TIMESTEP, g_gameState.platforms, PLATFORM_COUNT);
         g_gameState.walker->update(FIXED_TIMESTEP, g_gameState.platforms, PLATFORM_COUNT);
-        g_gameState.crawler->update(FIXED_TIMESTEP, g_gameState.platforms, PLATFORM_COUNT);
+        g_gameState.crawlers[0].update(FIXED_TIMESTEP, g_gameState.platforms, PLATFORM_COUNT);
+        g_gameState.crawlers[1].update(FIXED_TIMESTEP, g_gameState.platforms, PLATFORM_COUNT);
         g_gameState.flyers[0].update(FIXED_TIMESTEP, g_gameState.platforms, PLATFORM_COUNT, g_gameState.player);
         g_gameState.flyers[1].update(FIXED_TIMESTEP, g_gameState.platforms, PLATFORM_COUNT, g_gameState.player);
         g_timeAccumulator -= FIXED_TIMESTEP;
@@ -371,7 +391,8 @@ void render()
 
     // ————— ENEMIES ————— //
     g_gameState.walker->render(&g_shaderProgram);
-    g_gameState.crawler->render(&g_shaderProgram);
+    g_gameState.crawlers[0].render(&g_shaderProgram);
+    g_gameState.crawlers[1].render(&g_shaderProgram);
     g_gameState.flyers[0].render(&g_shaderProgram);
     g_gameState.flyers[1].render(&g_shaderProgram);
 
@@ -387,7 +408,7 @@ void shutdown() {
     delete[] g_gameState.background;
     delete[] g_gameState.player;
     delete[] g_gameState.walker;
-    delete[] g_gameState.crawler;
+    delete[] g_gameState.crawlers;
     delete[] g_gameState.flyers;
     delete[] g_gameState.platforms;
 }

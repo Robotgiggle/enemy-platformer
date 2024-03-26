@@ -42,6 +42,8 @@ public:
     int m_frames_per_second = 4;
     float m_animation_time = 0.0f;
 
+    bool m_always_animate = false;
+
     // ––––– PHYSICS (JUMPING) ––––– //
     bool  m_is_jumping = false;
     float m_jumping_power = 0;

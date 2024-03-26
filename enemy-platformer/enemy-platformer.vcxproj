@@ -149,12 +149,13 @@
     <ClInclude Include="stb_image.h" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="assets\crawler.png" />
     <Image Include="assets\default_background.png" />
     <Image Include="assets\default_font.png" />
-    <Image Include="assets\default_npc.png" />
     <Image Include="assets\default_platform.png" />
-    <Image Include="assets\default_player.png" />
+    <Image Include="assets\flyer.png" />
     <Image Include="assets\player.png" />
+    <Image Include="assets\walker.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

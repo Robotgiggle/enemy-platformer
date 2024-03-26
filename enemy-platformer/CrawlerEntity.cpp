@@ -15,7 +15,8 @@
 #include "CrawlerEntity.h"
 
 CrawlerEntity::CrawlerEntity(int state, bool dir) {
-	m_ai_state = (!state)? GROUND_DOWN : (state==1)? GROUND_RIGHT : (state==2)? GROUND_UP : GROUND_LEFT;
+	m_ai_state = static_cast<AIState>(state % 4);
+	set_angle(90 * (state % 4));
 	m_clockwise = dir;
 	m_edge_check_offsets[GROUND_DOWN] = glm::vec3((m_clockwise)? 0.01f: -0.01f, -0.5f * get_height(), 0.0f);
 	m_edge_check_offsets[GROUND_RIGHT] = glm::vec3(0.5f * get_height(), (m_clockwise) ? 0.01f : -0.01f, 0.0f);
@@ -163,13 +164,3 @@ void CrawlerEntity::update(float delta_time, Entity* collidable_entities, int co
 
 	Entity::update(delta_time, collidable_entities, collidable_entity_count);
 }
-
-//float const CrawlerEntity::get_width() const {
-//	if (m_ai_state == GROUND_LEFT or m_ai_state == GROUND_RIGHT) return Entity::get_height();
-//	return Entity::get_width();
-//}
-//
-//float const CrawlerEntity::get_height() const {
-//	if (m_ai_state == GROUND_LEFT or m_ai_state == GROUND_RIGHT) return Entity::get_width();
-//	return Entity::get_height();
-//}

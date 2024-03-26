@@ -87,7 +87,7 @@ void Entity::update(float delta_time, Entity* collidable_entities, int collidabl
     // ––––– ANIMATION ––––– //
     if (m_animation_indices != NULL)
     {
-        if (glm::length(m_movement) != 0) {
+        if (glm::length(m_movement) != 0 or m_always_animate) {
             m_animation_time += delta_time;
             float seconds_per_frame = (float)1 / m_frames_per_second;
 

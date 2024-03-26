@@ -61,16 +61,19 @@
     <Image Include="assets\default_platform.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="assets\default_player.png">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="assets\default_background.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="assets\default_npc.png">
+    <Image Include="assets\player.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="assets\player.png">
+    <Image Include="assets\walker.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\flyer.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\crawler.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
