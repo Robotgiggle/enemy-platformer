@@ -221,6 +221,8 @@ void const Entity::check_collision_x(Entity* collidable_entities, int collidable
 
 void Entity::render(ShaderProgram* program)
 {
+    if (!m_is_active) return;
+    
     program->set_model_matrix(m_model_matrix);
 
     if (m_animation_indices != NULL)

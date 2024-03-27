@@ -39,6 +39,7 @@ struct GameState
     WalkerEntity* walker;
     CrawlerEntity* crawlers;
     FlyerEntity* flyers;
+    Entity* hitboxes;
     Entity* platforms;
 };
 
@@ -75,7 +76,7 @@ const char BACKGROUND_FILEPATH[] = "assets/default_background.png",
 // world constants
 const float MILLISECONDS_IN_SECOND = 1000.0;
 const float FIXED_TIMESTEP = 0.0166666f;
-const float ACC_OF_GRAVITY = -4.91f;
+const float ACC_OF_GRAVITY = -9.5f;
 
 // platforms
 const int PLATFORM_COUNT = 13;
@@ -193,7 +194,7 @@ void initialise()
     g_gameState.player->set_width(0.65f);
     g_gameState.player->set_height(0.8f);
     g_gameState.player->m_texture_id = load_texture(PLAYER_FILEPATH);
-    g_gameState.player->m_jumping_power = 4.5f;
+    g_gameState.player->m_jumping_power = 6.5f;
 
     // setup walking animation
     g_gameState.player->m_walking[Entity::LEFT]  = new int[2] { 0, 2 };
@@ -234,13 +235,18 @@ void initialise()
 
     // ————— FLYERS ————— //
     g_gameState.flyers = new FlyerEntity[2]{ {0.4f, 0.6f, 3.5f}, {0.4f, 0.6f, 3.5f} };
+    g_gameState.hitboxes = new Entity[2];
     for (int i = 0; i < 2; i++) {
         g_gameState.flyers[i].set_position(glm::vec3(8*i - 4.0f, 2.5f, 0.0f));
-        // motion type???
         g_gameState.flyers[i].set_speed(4.5f);
         g_gameState.flyers[i].set_width(0.84f);
         g_gameState.flyers[i].set_height(0.63f);
         g_gameState.flyers[i].m_texture_id = load_texture(FLYER_FILEPATH);
+
+        // setup hitbox entity
+        g_gameState.hitboxes[i].set_position(glm::vec3(8 * i - 4.0f, 2.5f, 0.0f));
+        g_gameState.hitboxes[i].set_width(0.6f);
+        g_gameState.hitboxes[i].set_height(0.6f);
 
         // setup flapping animation
         g_gameState.flyers[i].m_walking[Entity::LEFT] = new int[4] { 0, 2, 4 };
@@ -337,12 +343,48 @@ void update()
     if (g_timeAccumulator < FIXED_TIMESTEP) return;
     while (g_timeAccumulator >= FIXED_TIMESTEP)
     {
+        // move hitbox entities
+        g_gameState.hitboxes[0].set_position(g_gameState.flyers[0].get_position());
+        g_gameState.hitboxes[1].set_position(g_gameState.flyers[1].get_position());
+        
+        // update player and enemies
         g_gameState.player->update(FIXED_TIMESTEP, g_gameState.platforms, PLATFORM_COUNT);
         g_gameState.walker->update(FIXED_TIMESTEP, g_gameState.platforms, PLATFORM_COUNT);
         g_gameState.crawlers[0].update(FIXED_TIMESTEP, g_gameState.platforms, PLATFORM_COUNT);
         g_gameState.crawlers[1].update(FIXED_TIMESTEP, g_gameState.platforms, PLATFORM_COUNT);
         g_gameState.flyers[0].update(FIXED_TIMESTEP, g_gameState.platforms, PLATFORM_COUNT, g_gameState.player);
         g_gameState.flyers[1].update(FIXED_TIMESTEP, g_gameState.platforms, PLATFORM_COUNT, g_gameState.player);
+        g_gameState.hitboxes[0].update(FIXED_TIMESTEP, g_gameState.platforms, PLATFORM_COUNT);
+        g_gameState.hitboxes[1].update(FIXED_TIMESTEP, g_gameState.platforms, PLATFORM_COUNT);
+        
+        // check for enemy collision
+        Entity* enemies[5] = { 
+            g_gameState.walker,
+            g_gameState.crawlers, g_gameState.crawlers+1,
+            g_gameState.hitboxes, g_gameState.hitboxes+1
+        };
+        for (int i = 0; i < 5; i++) {
+            Entity* player = g_gameState.player;
+            Entity* enemy = enemies[i];
+            if (player->check_collision(enemy)) {
+                if (player->get_velocity().y < 0 and player->get_position().y > enemy->get_position().y) {
+                    if ((i == 1 or i == 2) and (!enemy->get_angle())) {
+                        // stomping a crawler kills you if the spike is pointing up
+                        player->set_active(false);
+                        continue;
+                    } else if (i >= 3) {
+                        // for flyers, both the hitbox and the flyer need to be disabled
+                        g_gameState.flyers[i - 3].set_active(false);
+                    }
+                    enemy->set_active(false);
+                    glm::vec3 vel = player->get_velocity();
+                    player->set_velocity(vel + glm::vec3(0.0f, 6.5f, 0.0f));
+                } else {
+                    player->set_active(false);
+                }
+            }
+        }
+
         g_timeAccumulator -= FIXED_TIMESTEP;
     }
 }
