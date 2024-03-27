@@ -41,6 +41,7 @@ struct GameState
     FlyerEntity* flyers;
     Entity* hitboxes;
     Entity* platforms;
+    Entity* letters;
 };
 
 // ————— CONSTANTS ————— //
@@ -71,7 +72,8 @@ const char BACKGROUND_FILEPATH[] = "assets/default_background.png",
            WALKER_FILEPATH[] = "assets/walker.png",
            CRAWLER_FILEPATH[] = "assets/crawler.png",
            FLYER_FILEPATH[] = "assets/flyer.png",
-           PLATFORM_FILEPATH[] = "assets/default_platform.png";
+           PLATFORM_FILEPATH[] = "assets/default_platform.png",
+           FONT_FILEPATH[] = "assets/default_font.png";
 
 // world constants
 const float MILLISECONDS_IN_SECOND = 1000.0;
@@ -119,7 +121,20 @@ bool g_gameIsRunning = true;
 float g_previousTicks = 0.0f;
 float g_timeAccumulator = 0.0f;
 
+// custom
+int g_gameOver = 0;
+float g_endingTimer = 4.0f;
+
 // ———— GENERAL FUNCTIONS ———— //
+void end_game(bool win) {
+    g_gameOver = (win) ? 2 : 1;
+    char youWin[] = "You Win!";
+    char youLose[] = "You Lose";
+    for (int i = 0; i < 8; i++) {
+        g_gameState.letters[i].m_animation_index = (win) ? youWin[i] : youLose[i];
+    }
+}
+
 GLuint load_texture(const char* filepath)
 {
     int width, height, number_of_components;
@@ -257,12 +272,22 @@ void initialise()
 
     // ————— PLATFORMS ————— //
     g_gameState.platforms = new Entity[PLATFORM_COUNT];
-
     for (int i = 0; i < PLATFORM_COUNT; i++)
     {
         g_gameState.platforms[i].m_texture_id = load_texture(PLATFORM_FILEPATH);
         g_gameState.platforms[i].set_position(PLATFORM_COORDS[i]);
         g_gameState.platforms[i].update(0.0f, NULL, 0);
+    }
+
+    // ————— TEXT ————— //
+    g_gameState.letters = new Entity[8];
+    for (int i = 0; i < 8; i++) {
+        g_gameState.letters[i].m_texture_id = load_texture(FONT_FILEPATH);
+        g_gameState.letters[i].set_position(glm::vec3(-3.5f + i, 0.0f, 0.0f));
+        g_gameState.letters[i].m_animation_indices = new int[256];
+        for (int j = 0; j < 256; j++) g_gameState.letters[i].m_animation_indices[j] = j;
+        g_gameState.letters[i].setup_anim(16, 16);
+        g_gameState.letters[i].update(0.0f, NULL, 0);
     }
 
     // ————— GENERAL ————— //
@@ -343,6 +368,12 @@ void update()
     if (g_timeAccumulator < FIXED_TIMESTEP) return;
     while (g_timeAccumulator >= FIXED_TIMESTEP)
     {
+        // game ending
+        if (g_gameOver) {
+            g_endingTimer -= FIXED_TIMESTEP;
+            if (g_endingTimer <= 0.0f) g_gameIsRunning = false;
+        }
+        
         // move hitbox entities
         g_gameState.hitboxes[0].set_position(g_gameState.flyers[0].get_position());
         g_gameState.hitboxes[1].set_position(g_gameState.flyers[1].get_position());
@@ -357,7 +388,8 @@ void update()
         g_gameState.hitboxes[0].update(FIXED_TIMESTEP, g_gameState.platforms, PLATFORM_COUNT);
         g_gameState.hitboxes[1].update(FIXED_TIMESTEP, g_gameState.platforms, PLATFORM_COUNT);
         
-        // check for enemy collision
+        // check for enemy collision and victory condition
+        bool allDone = true;
         Entity* enemies[5] = { 
             g_gameState.walker,
             g_gameState.crawlers, g_gameState.crawlers+1,
@@ -366,11 +398,15 @@ void update()
         for (int i = 0; i < 5; i++) {
             Entity* player = g_gameState.player;
             Entity* enemy = enemies[i];
+
+            if (enemy->get_active()) allDone = false;
+
             if (player->check_collision(enemy)) {
                 if (player->get_velocity().y < 0 and player->get_position().y > enemy->get_position().y) {
                     if ((i == 1 or i == 2) and (!enemy->get_angle())) {
                         // stomping a crawler kills you if the spike is pointing up
                         player->set_active(false);
+                        end_game(false);
                         continue;
                     } else if (i >= 3) {
                         // for flyers, both the hitbox and the flyer need to be disabled
@@ -381,9 +417,11 @@ void update()
                     player->set_velocity(vel + glm::vec3(0.0f, 6.5f, 0.0f));
                 } else {
                     player->set_active(false);
+                    end_game(false);
                 }
             }
         }
+        if (allDone) end_game(true);
 
         g_timeAccumulator -= FIXED_TIMESTEP;
     }
@@ -410,6 +448,9 @@ void render()
     // ————— PLATFORM ————— //
     for (int i = 0; i < PLATFORM_COUNT; i++) g_gameState.platforms[i].render(&g_shaderProgram);
 
+    // ————— TEXT ————— //
+    if (g_endingTimer < 4.0f) for (int i = 0; i < 8; i++) g_gameState.letters[i].render(&g_shaderProgram);
+
     // ————— GENERAL ————— //
     SDL_GL_SwapWindow(g_displayWindow);
 }
@@ -422,6 +463,7 @@ void shutdown() {
     delete[] g_gameState.crawlers;
     delete[] g_gameState.flyers;
     delete[] g_gameState.platforms;
+    delete[] g_gameState.letters;
 }
 
 // ————— DRIVER GAME LOOP ————— /
