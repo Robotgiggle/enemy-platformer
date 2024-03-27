@@ -58,12 +58,6 @@
     <Image Include="assets\default_font.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="assets\default_platform.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\default_background.png">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="assets\player.png">
       <Filter>Resource Files</Filter>
     </Image>
@@ -74,6 +68,15 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="assets\crawler.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\background.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\platforms.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\default_background.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

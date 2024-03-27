@@ -67,12 +67,12 @@ const char V_SHADER_PATH[] = "shaders/vertex_textured.glsl",
            F_SHADER_PATH[] = "shaders/fragment_textured.glsl";
 
 // sprite filepaths
-const char BACKGROUND_FILEPATH[] = "assets/default_background.png",
+const char BACKGROUND_FILEPATH[] = "assets/background.png",
            PLAYER_FILEPATH[] = "assets/player.png",
            WALKER_FILEPATH[] = "assets/walker.png",
            CRAWLER_FILEPATH[] = "assets/crawler.png",
            FLYER_FILEPATH[] = "assets/flyer.png",
-           PLATFORM_FILEPATH[] = "assets/default_platform.png",
+           PLATFORM_FILEPATH[] = "assets/platforms.png",
            FONT_FILEPATH[] = "assets/default_font.png";
 
 // world constants
@@ -260,8 +260,8 @@ void initialise()
 
         // setup hitbox entity
         g_gameState.hitboxes[i].set_position(glm::vec3(8 * i - 4.0f, 2.5f, 0.0f));
-        g_gameState.hitboxes[i].set_width(0.6f);
-        g_gameState.hitboxes[i].set_height(0.6f);
+        g_gameState.hitboxes[i].set_width(0.55f);
+        g_gameState.hitboxes[i].set_height(0.55f);
 
         // setup flapping animation
         g_gameState.flyers[i].m_walking[Entity::LEFT] = new int[4] { 0, 2, 4 };
@@ -276,6 +276,10 @@ void initialise()
     {
         g_gameState.platforms[i].m_texture_id = load_texture(PLATFORM_FILEPATH);
         g_gameState.platforms[i].set_position(PLATFORM_COORDS[i]);
+        g_gameState.platforms[i].m_animation_indices = new int[3] { 0, 1, 2 };
+        g_gameState.platforms[i].setup_anim(3, 1, 0, 4, true, 1);
+        if (i == 0 or i == 7 or i == 8)g_gameState.platforms[i].m_animation_index = 0;
+        if (i == 5 or i == 6 or i == 12) g_gameState.platforms[i].m_animation_index = 2;
         g_gameState.platforms[i].update(0.0f, NULL, 0);
     }
 
@@ -284,6 +288,8 @@ void initialise()
     for (int i = 0; i < 8; i++) {
         g_gameState.letters[i].m_texture_id = load_texture(FONT_FILEPATH);
         g_gameState.letters[i].set_position(glm::vec3(-3.5f + i, 0.0f, 0.0f));
+        g_gameState.letters[i].set_width(1.35f);
+        g_gameState.letters[i].set_height(1.35f);
         g_gameState.letters[i].m_animation_indices = new int[256];
         for (int j = 0; j < 256; j++) g_gameState.letters[i].m_animation_indices[j] = j;
         g_gameState.letters[i].setup_anim(16, 16);
@@ -388,7 +394,7 @@ void update()
         g_gameState.hitboxes[0].update(FIXED_TIMESTEP, g_gameState.platforms, PLATFORM_COUNT);
         g_gameState.hitboxes[1].update(FIXED_TIMESTEP, g_gameState.platforms, PLATFORM_COUNT);
         
-        // check for enemy collision and victory condition
+        // check for enemy collision (and victory condition)
         bool allDone = true;
         Entity* enemies[5] = { 
             g_gameState.walker,
