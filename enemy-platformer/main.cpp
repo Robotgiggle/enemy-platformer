@@ -123,7 +123,7 @@ float g_timeAccumulator = 0.0f;
 
 // custom
 int g_gameOver = 0;
-float g_endingTimer = 4.0f;
+float g_endingTimer = 3.0f;
 
 // ———— GENERAL FUNCTIONS ———— //
 void end_game(bool win) {
@@ -132,6 +132,12 @@ void end_game(bool win) {
     char youLose[] = "You Lose";
     for (int i = 0; i < 8; i++) {
         g_gameState.letters[i].m_animation_index = (win) ? youWin[i] : youLose[i];
+    }
+    if (!win and g_gameState.player->get_position().y > -3.7f) {
+        // mario-style death animation
+        g_gameState.player->set_collision(false);
+        g_gameState.player->set_velocity(glm::vec3(0.0f, 6.5f, 0.0f));
+        g_gameState.player->set_acceleration(glm::vec3(0.0f, ACC_OF_GRAVITY * 1.6f, 0.0f));
     }
 }
 
@@ -394,6 +400,9 @@ void update()
         g_gameState.hitboxes[0].update(FIXED_TIMESTEP, g_gameState.platforms, PLATFORM_COUNT);
         g_gameState.hitboxes[1].update(FIXED_TIMESTEP, g_gameState.platforms, PLATFORM_COUNT);
         
+        // check for out-of-world
+        if (g_gameState.player->get_position().y < -3.75f) end_game(false);
+
         // check for enemy collision (and victory condition)
         bool allDone = true;
         Entity* enemies[5] = { 
@@ -407,11 +416,11 @@ void update()
 
             if (enemy->get_active()) allDone = false;
 
-            if (player->check_collision(enemy)) {
+            if (player->check_collision(enemy) and !g_gameOver) {
                 if (player->get_velocity().y < 0 and player->get_position().y > enemy->get_position().y) {
                     if ((i == 1 or i == 2) and (!enemy->get_angle())) {
                         // stomping a crawler kills you if the spike is pointing up
-                        player->set_active(false);
+                        //player->set_active(false);
                         end_game(false);
                         continue;
                     } else if (i >= 3) {
@@ -422,7 +431,7 @@ void update()
                     glm::vec3 vel = player->get_velocity();
                     player->set_velocity(vel + glm::vec3(0.0f, 6.5f, 0.0f));
                 } else {
-                    player->set_active(false);
+                    //player->set_active(false);
                     end_game(false);
                 }
             }
@@ -441,8 +450,8 @@ void render()
     // ————— BACKGROUND ————— //
     g_gameState.background->render(&g_shaderProgram);
 
-    // ————— PLAYER ————— //
-    g_gameState.player->render(&g_shaderProgram);
+    // ————— PLATFORMS ————— //
+    for (int i = 0; i < PLATFORM_COUNT; i++) g_gameState.platforms[i].render(&g_shaderProgram);
 
     // ————— ENEMIES ————— //
     g_gameState.walker->render(&g_shaderProgram);
@@ -451,11 +460,11 @@ void render()
     g_gameState.flyers[0].render(&g_shaderProgram);
     g_gameState.flyers[1].render(&g_shaderProgram);
 
-    // ————— PLATFORM ————— //
-    for (int i = 0; i < PLATFORM_COUNT; i++) g_gameState.platforms[i].render(&g_shaderProgram);
+    // ————— PLAYER ————— //
+    g_gameState.player->render(&g_shaderProgram);
 
     // ————— TEXT ————— //
-    if (g_endingTimer < 4.0f) for (int i = 0; i < 8; i++) g_gameState.letters[i].render(&g_shaderProgram);
+    if (g_endingTimer < 3.0f) for (int i = 0; i < 8; i++) g_gameState.letters[i].render(&g_shaderProgram);
 
     // ————— GENERAL ————— //
     SDL_GL_SwapWindow(g_displayWindow);
