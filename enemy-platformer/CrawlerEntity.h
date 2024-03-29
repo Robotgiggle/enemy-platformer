@@ -11,8 +11,6 @@ public:
 
 	// ————— METHOD OVERRIDES ————— //
 	void update(float delta_time, Entity* collidable_entities, int collidable_entity_count);
-	/*float const get_width() const;
-	float const get_height() const;*/
 
 	// ————— GETTERS ————— //
 	AIState const get_ai_state()  const { return m_ai_state; };

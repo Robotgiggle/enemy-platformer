@@ -23,9 +23,6 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "ShaderProgram.h"
 #include "stb_image.h"
-#include "cmath"
-#include <ctime>
-#include <vector>
 #include "Entity.h"
 #include "WalkerEntity.h"
 #include "CrawlerEntity.h"
@@ -420,7 +417,6 @@ void update()
                 if (player->get_velocity().y < 0 and player->get_position().y > enemy->get_position().y) {
                     if ((i == 1 or i == 2) and (!enemy->get_angle())) {
                         // stomping a crawler kills you if the spike is pointing up
-                        //player->set_active(false);
                         end_game(false);
                         continue;
                     } else if (i >= 3) {
@@ -431,7 +427,6 @@ void update()
                     glm::vec3 vel = player->get_velocity();
                     player->set_velocity(vel + glm::vec3(0.0f, 6.5f, 0.0f));
                 } else {
-                    //player->set_active(false);
                     end_game(false);
                 }
             }
