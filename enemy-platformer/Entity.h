@@ -57,8 +57,7 @@ public:
         bool always = false, int index = 0, float time = 0.0f);
     void draw_sprite_from_texture_atlas(ShaderProgram* program, GLuint texture_id, int index);
     bool const check_collision(Entity* other) const;
-    void const check_collision_y(Entity* collidable_entities, int collidable_entity_count);
-    void const check_collision_x(Entity* collidable_entities, int collidable_entity_count);
+    void const check_solid_collision(Entity* solid_entities, int solid_entity_count);
 
     void update(float delta_time, Entity* collidable_entities, int collidable_entity_count);
     void render(ShaderProgram* program);

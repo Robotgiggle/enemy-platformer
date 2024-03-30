@@ -335,6 +335,8 @@ void process_input()
         }
     }
 
+    if (g_gameOver == 1) return;
+
     const Uint8* key_state = SDL_GetKeyboardState(NULL);
 
     if (key_state[SDL_SCANCODE_LEFT])

@@ -87,7 +87,7 @@ void Entity::draw_sprite_from_texture_atlas(ShaderProgram* program, GLuint textu
     glDisableVertexAttribArray(program->get_tex_coordinate_attribute());
 }
 
-void Entity::update(float delta_time, Entity* collidable_entities, int collidable_entity_count)
+void Entity::update(float delta_time, Entity* solid_entities, int solid_entity_count)
 {
     if (!m_is_active) return;
 
@@ -137,11 +137,9 @@ void Entity::update(float delta_time, Entity* collidable_entities, int collidabl
         break;
     }
 
-    m_position.y += m_velocity.y * delta_time;
-    if (m_has_collision) check_collision_y(collidable_entities, collidable_entity_count);
+    m_position += m_velocity * delta_time;
 
-    m_position.x += m_velocity.x * delta_time;
-    if (m_has_collision) check_collision_x(collidable_entities, collidable_entity_count);
+    if (m_has_collision) check_solid_collision(solid_entities, solid_entity_count);
 
     // ––––– ROTATION ––––– //
     m_angle += m_rotation * m_rot_speed * 45.0f * delta_time;
@@ -164,53 +162,40 @@ void Entity::update(float delta_time, Entity* collidable_entities, int collidabl
 
 }
 
-void const Entity::check_collision_y(Entity* collidable_entities, int collidable_entity_count)
+void const Entity::check_solid_collision(Entity* solid_entities, int solid_entity_count)
 {
-    for (int i = 0; i < collidable_entity_count; i++)
+    for (int i = 0; i < solid_entity_count; i++)
     {
         // STEP 1: For every entity that our player can collide with...
-        Entity* collidable_entity = &collidable_entities[i];
+        Entity* solid_entity = &solid_entities[i];
 
-        if (check_collision(collidable_entity))
+        if (check_collision(solid_entity))
         {
-            // STEP 2: Calculate the distance between its centre and our centre
-            //         and use that to calculate the amount of overlap between
-            //         both bodies.
-            float y_distance = fabs(m_position.y - collidable_entity->m_position.y);
-            float y_overlap = fabs(y_distance - (get_height() / 2.0f) - (collidable_entity->get_height() / 2.0f));
+            // STEP 2: Calculate the distance between its centre and our centre and use 
+            //         that to calculate the amount of overlap between both bodies.     
+            float y_distance = fabs(m_position.y - solid_entity->m_position.y);
+            float y_overlap = fabs(y_distance - (get_height() / 2.0f) - (solid_entity->get_height() / 2.0f));
 
-            // STEP 3: "Unclip" ourselves from the other entity, and zero our
-            //         vertical velocity.
-            if (m_velocity.y > 0) {
+            float x_distance = fabs(m_position.x - solid_entity->m_position.x);
+            float x_overlap = fabs(x_distance - (get_width() / 2.0f) - (solid_entity->get_width() / 2.0f));
+
+            // STEP 3: "Unclip" ourselves from the other entity, and zero our velocity.
+            if (m_velocity.y > 0 and y_overlap < x_overlap) {
                 m_position.y -= y_overlap;
                 m_velocity.y = 0;
                 m_collided_top = true;
             }
-            else if (m_velocity.y < 0) {
+            else if (m_velocity.y < 0 and y_overlap < x_overlap) {
                 m_position.y += y_overlap;
                 m_velocity.y = 0;
                 m_collided_bottom = true;
             }
-        }
-    }
-}
-
-void const Entity::check_collision_x(Entity* collidable_entities, int collidable_entity_count)
-{
-    for (int i = 0; i < collidable_entity_count; i++)
-    {
-        Entity* collidable_entity = &collidable_entities[i];
-
-        if (check_collision(collidable_entity))
-        {
-            float x_distance = fabs(m_position.x - collidable_entity->m_position.x);
-            float x_overlap = fabs(x_distance - (get_width() / 2.0f) - (collidable_entity->get_width() / 2.0f));
-            if (m_velocity.x > 0) {
+            else if (m_velocity.x > 0 and x_overlap < y_overlap) {
                 m_position.x -= x_overlap;
                 m_velocity.x = 0;
                 m_collided_right = true;
             }
-            else if (m_velocity.x < 0) {
+            else if (m_velocity.x < 0 and x_overlap < y_overlap) {
                 m_position.x += x_overlap;
                 m_velocity.x = 0;
                 m_collided_left = true;
@@ -222,7 +207,7 @@ void const Entity::check_collision_x(Entity* collidable_entities, int collidable
 void Entity::render(ShaderProgram* program)
 {
     if (!m_is_active) return;
-    
+
     program->set_model_matrix(m_model_matrix);
 
     if (m_animation_indices != NULL)
