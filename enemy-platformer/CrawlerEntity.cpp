@@ -23,6 +23,11 @@ CrawlerEntity::CrawlerEntity(int state, bool dir) {
 	m_edge_check_offsets[GROUND_UP] = glm::vec3((m_clockwise) ? -0.01f : 0.01f, 0.5f * get_height(), 0.0f);
 	m_edge_check_offsets[GROUND_LEFT] = glm::vec3(-0.5f * get_height(), (m_clockwise) ? -0.01f : 0.01f, 0.0f);
 	m_current_ec_offset = m_edge_check_offsets[m_ai_state];
+	/*m_grav_directions[GROUND_DOWN] = glm::vec3(0.0f, -10.0f, 0.0f);
+	m_grav_directions[GROUND_RIGHT] = glm::vec3(10.0f, 0.0f, 0.0f);
+	m_grav_directions[GROUND_UP] = glm::vec3(0.0f, 10.0f, 0.0f);
+	m_grav_directions[GROUND_LEFT] = glm::vec3(-10.0f, 0.0f, 0.0f);
+	set_acceleration(m_grav_directions[m_ai_state]);*/
 	set_motion_type(TOP_DOWN);
 }
 
@@ -31,8 +36,6 @@ CrawlerEntity::~CrawlerEntity() {
 }
 
 void CrawlerEntity::update(float delta_time, Entity* collidable_entities, int collidable_entity_count) {
-	m_current_ec_offset = m_edge_check_offsets[m_ai_state];
-	
 	// basic motion
 	set_movement(glm::vec3(0.0f));
 	switch (m_ai_state) {
@@ -102,9 +105,11 @@ void CrawlerEntity::update(float delta_time, Entity* collidable_entities, int co
 			if (m_clockwise) {
 				m_ai_state = GROUND_LEFT;
 				set_angle(-90);
+				move_left();
 			} else {
 				m_ai_state = GROUND_RIGHT;
 				set_angle(90);
+				move_right();
 			}
 			set_position(glm::vec3(
 				pos.x + get_height() / ((m_clockwise)? 2 : -2),
@@ -116,10 +121,12 @@ void CrawlerEntity::update(float delta_time, Entity* collidable_entities, int co
 			if (m_clockwise) {
 				m_ai_state = GROUND_DOWN;
 				set_angle(0);
+				move_down();
 			}
 			else {
 				m_ai_state = GROUND_UP;
 				set_angle(180);
+				move_up();
 			}
 			set_position(glm::vec3(
 				pos.x + get_width() / 2 + 0.2f,
@@ -131,10 +138,12 @@ void CrawlerEntity::update(float delta_time, Entity* collidable_entities, int co
 			if (m_clockwise) {
 				m_ai_state = GROUND_RIGHT;
 				set_angle(90);
+				move_right();
 			}
 			else {
 				m_ai_state = GROUND_LEFT;
 				set_angle(-90);
+				move_left();
 			}
 			set_position(glm::vec3(
 				pos.x + get_height() / ((m_clockwise) ? -2 : 2),
@@ -146,10 +155,12 @@ void CrawlerEntity::update(float delta_time, Entity* collidable_entities, int co
 			if (m_clockwise) {
 				m_ai_state = GROUND_UP;
 				set_angle(180);
+				move_up();
 			}
 			else {
 				m_ai_state = GROUND_DOWN;
 				set_angle(0);
+				move_down();
 			}
 			set_position(glm::vec3(
 				pos.x - get_width() / 2 - 0.2f,
@@ -160,6 +171,7 @@ void CrawlerEntity::update(float delta_time, Entity* collidable_entities, int co
 		default:
 			break;
 		}
+		m_current_ec_offset = m_edge_check_offsets[m_ai_state];
 	}
 
 	Entity::update(delta_time, collidable_entities, collidable_entity_count);

@@ -2,6 +2,7 @@ class CrawlerEntity : public Entity {
 private:
 	enum AIState { GROUND_DOWN, GROUND_RIGHT, GROUND_UP, GROUND_LEFT };
 	AIState m_ai_state;
+	//glm::vec3 m_grav_directions[4];
 	glm::vec3 m_edge_check_offsets[4];
 	glm::vec3 m_current_ec_offset;
 	bool m_clockwise;

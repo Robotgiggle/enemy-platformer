@@ -129,6 +129,11 @@ void Entity::update(float delta_time, Entity* solid_entities, int solid_entity_c
         m_velocity.x = m_movement.x * m_speed;
         m_velocity += m_acceleration * delta_time;
         break;
+    case SIDE_ON_Y:
+        // physics on X axis, controlled on Y axis
+        m_velocity.y = m_movement.y * m_speed;
+        m_velocity += m_acceleration * delta_time;
+        break;
     case PHYSICS:
         // physics only
         m_velocity += m_acceleration * delta_time;

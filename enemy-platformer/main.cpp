@@ -234,10 +234,9 @@ void initialise()
     g_gameState.walker->m_animation_indices = g_gameState.walker->m_walking[Entity::LEFT];
     g_gameState.walker->setup_anim(2, 2, 2, 5);
 
-    // ————— CRAWLER ————— //
+    // ————— CRAWLERS ————— //
     g_gameState.crawlers = new CrawlerEntity[2]{ {0,true}, {2,true} };
     for (int i = 0; i < 2; i++) {
-        g_gameState.crawlers[i].set_collision(false);
         g_gameState.crawlers[i].set_position(glm::vec3(-2.0f + 4*i, 1.4f - 1.8*i, 0.0f));
         g_gameState.crawlers[i].set_speed(3.0f);
         g_gameState.crawlers[i].set_width(0.7f);

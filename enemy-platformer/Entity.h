@@ -2,7 +2,7 @@
 
 class Entity {
 public:
-    enum MotionType { NONE, TOP_DOWN, SIDE_ON, PHYSICS };
+    enum MotionType { NONE, TOP_DOWN, SIDE_ON, SIDE_ON_Y, PHYSICS };
     enum { LEFT, RIGHT, UP, DOWN };
 
 private:
